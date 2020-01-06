@@ -33,14 +33,22 @@ class Board():
                     x = int(row[2].strip(' "'))
                     y = int(row[3].strip('"'))
                     if row[1] == " H":
-                        board[x - 1][y - 1] = row[0]
-                        board[x][y - 1] = row[0]
+                        for i in range(int(row[4].strip())):
+                            board[y - 1][x + i - 1] = row[0]                  
                     else:
-                        board[x - 1][y - 1] = row[0]
-                        board[x - 1][y] = row[0]
-
+                        for i in range(int(row[4].strip())):
+                            board[y + i - 1][x - 1] = row[0]
                 row_count += 1
-        print(board)
+                
+            print(board)
+            for r in board:
+                for c in r:
+                    print(c,end = " ")
+                print() 
+                        
+
+            
+        
 
 
 if __name__ == '__main__':
