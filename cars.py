@@ -5,52 +5,50 @@ import csv
 class Car():
     """ Make car objects """
 
-    def __init__(self, carname, length):
-        self.carname = carname
+    def __init__(self, name, direction, x, y, length):
+        self.name = name
+        self.direction = direction
+        self.x = x
+        self.y = y
         self.length = length
 
-
 class Board():
+    """ Make board object """
 
-    def __init__(self, dimensions):
+    def __init__(self, dimensions, carlist):
         self.dimensions = dimensions
+        self.carlist = carlist
+
         board = [[0 for x in range(dimensions)] for y in range(dimensions)]
 
-        # open csv file
-        with open('Rushhour6x6_1.csv') as input:
-            reader = csv.reader(input, delimiter=',')
-            row_count = 0
+        for car in carlist:
+            if car.direction == "H":
+                for i in range(car.length):
+                    board[car.y - 1][car.x + i - 1] = car.name
+            else:
+                for i in range(car.length):
+                    board[car.y + i - 1][car.x - 1] = car.name
 
-            # # remove spaces from elements
-            # for row in reader:
-            #     for element in row:
-            #         element.strip()
-            #         print(element)
-
-            for row in reader:
-                if row_count != 0:
-                    car = Car(row[0], row[4])
-                    x = int(row[2].strip(' "'))
-                    y = int(row[3].strip('"'))
-                    if row[1] == " H":
-                        for i in range(int(row[4].strip())):
-                            board[y - 1][x + i - 1] = row[0]                  
-                    else:
-                        for i in range(int(row[4].strip())):
-                            board[y + i - 1][x - 1] = row[0]
-                row_count += 1
-                
-            print(board)
-            for r in board:
-                for c in r:
-                    print(c,end = " ")
-                print() 
-                        
-
-            
-        
-
+        for r in board:
+            for c in r:
+                print(c,end = " ")
+            print()
 
 if __name__ == '__main__':
 
-    game  = Board(6)
+    with open('Rushhour6x6_1.csv') as input:
+        reader = csv.reader(input, delimiter=',')
+
+        row_count = 0
+        carlist = []
+        for row in reader:
+            if row_count != 0:
+                x = int(row[2].strip(' "'))
+                y = int(row[3].strip('"'))
+                length = int(row[4].strip())
+                direction = row[1].strip()
+                car = Car(row[0], direction, x, y, length)
+                carlist.append(car)
+            row_count += 1
+
+    board = Board(6, carlist)
