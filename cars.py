@@ -1,12 +1,12 @@
 import csv
 import random
 
-# create 2d array
-
 class Car():
     """ Make car objects """
 
     def __init__(self, name, direction, x, y, length):
+        """ Initialize car """
+
         self.name = name
         self.direction = direction
         self.x = x
@@ -17,11 +17,16 @@ class Board():
     """ Make board object """
 
     def __init__(self, dimensions, carlist):
+        """ Initialize board """
+
         self.dimensions = dimensions
         self.carlist = carlist
+        self.counter = 0
 
+        # fill in empty board with correct dimensions
         self.board = [[0 for x in range(dimensions)] for y in range(dimensions)]
 
+        # fill in all cars on correct places in board
         for car in carlist:
             if car.direction == "H":
                 for i in range(car.length):
@@ -31,65 +36,76 @@ class Board():
                     self.board[car.y + i][car.x] = car.name
 
     def move(self):
-        
-        test_count = 0
-        # check if won
-        while self.won() != True:
-            test_count += 1
+        """ Allows cars to move over the board """
 
-            if (test_count % 200000) == 0:
-                self.print_board()
-            
+        # end loop if game is won
+        while self.won() != True:
+
             # pick random number to move
             car = random.choice(self.carlist)
 
-                
             # check if there is space to the right of horizontal cars to move to
             if car.direction == "H":
                 if car.x < (self.dimensions - 2) and self.board[car.y][car.x + 2] == 0:
+
+                    # move car over board and increment counter
                     self.board[car.y][car.x + 2] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.x = car.x + 1
+                    self.counter += 1
 
-                # if horizontal car can't move to right, check if space to the left to move to
-                elif car.x > 0 and self.board[car.y][car.x - 1] == 0 and car.name != "X":
+                # if horizontal car can't move right, check if space to the left to move to
+                elif car.x > 0 and self.board[car.y][car.x - 1] == 0:
+
+                    # move car over board and increment counter
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + 1] = 0
                     car.x = car.x - 1
+                    self.counter += 1
 
-            # if car vertical check if there is space to the top to move to
+            # check if there is space to the top of vertical cars to move to
             if car.direction == "V":
                 if car.y < (self.dimensions - 2) and self.board[car.y + 2][car.x] == 0:
+
+                    # move car over board and increment counter
                     self.board[car.y + 2][car.x] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.y = car.y + 1
+                    self.counter += 1
 
                 # if vertical car can't move up, check if space to the bottom to move to
                 elif car.y > 0 and self.board[car.y - 1][car.x] == 0:
+
+                    # move car over board and increment counter
                     self.board[car.y - 1][car.x] = self.board[car.y][car.x]
                     self.board[car.y + 1][car.x] = 0
                     car.y = car.y - 1
+                    self.counter += 1
 
-        print("won")
         self.print_board()
+        print(f"Found solution! {self.counter} cars were moved before the solution was found.")
 
     def won(self):
+        """ Check if game is won """
+
+        # select red car
         for car in self.carlist:
             if car.name == "X":
                 red_car = car
-        
+
+        # check if red car is in right place
         if red_car.x == ((self.dimensions / 2) + 1):
             return True
         return False
-    
+
     def print_board(self):
+        """ Print the board """
+
+        # print board in correct order
         for i in range(self.dimensions -1, -1, -1):
             for j in range(self.dimensions):
                 print(self.board[i][j] ,end = " ")
             print()
-    
-
-        
 
 if __name__ == '__main__':
 
@@ -109,4 +125,4 @@ if __name__ == '__main__':
             row_count += 1
 
     board = Board(6, carlist)
-    move = board.move()
+    board.move()
