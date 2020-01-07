@@ -19,20 +19,41 @@ class Board():
         self.dimensions = dimensions
         self.carlist = carlist
 
-        board = [[0 for x in range(dimensions)] for y in range(dimensions)]
+        self.board = [[0 for x in range(dimensions)] for y in range(dimensions)]
 
         for car in carlist:
             if car.direction == "H":
                 for i in range(car.length):
-                    board[car.y - 1][car.x + i - 1] = car.name
-            else:
+                    self.board[car.y][car.x + i] = car.name
+            if car.direction == "V":
                 for i in range(car.length):
-                    board[car.y + i - 1][car.x - 1] = car.name
+                    self.board[car.y + i][car.x] = car.name
 
-        for r in board:
+        for r in self.board:
             for c in r:
                 print(c,end = " ")
             print()
+        print()
+    
+    def move(self):
+
+        for car in self.carlist:
+
+            if car.direction == "H" and car.x < 4:
+                if self.board[car.y][car.x + 2] == 0:
+                    self.board[car.y][car.x + 2] = self.board[car.y][car.x]
+                    self.board[car.y][car.x] = 0
+                elif self.board[car.y][car.x - 1] == 0:
+                    self.board[car.y][car.x - 1] = self.board[car.y][car.x]
+                    self.board[car.y][car.x + 1] = 0
+        
+            for r in self.board:
+                for c in r:
+                    print(c,end = " ")
+                print()
+            print()
+            # if car.direction == "V":
+
 
 if __name__ == '__main__':
 
@@ -43,8 +64,8 @@ if __name__ == '__main__':
         carlist = []
         for row in reader:
             if row_count != 0:
-                x = int(row[2].strip(' "'))
-                y = int(row[3].strip('"'))
+                x = int(row[2].strip(' "')) - 1
+                y = int(row[3].strip('"')) - 1
                 length = int(row[4].strip())
                 direction = row[1].strip()
                 car = Car(row[0], direction, x, y, length)
@@ -52,3 +73,4 @@ if __name__ == '__main__':
             row_count += 1
 
     board = Board(6, carlist)
+    move = board.move()
