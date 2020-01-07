@@ -34,26 +34,46 @@ class Board():
                 print(c,end = " ")
             print()
         print()
-    
+
+        for car in self.carlist:
+            print(car.name)
+            print(car.x)
+
     def move(self):
 
         for car in self.carlist:
 
-            if car.direction == "H" and car.x < 4:
-                if self.board[car.y][car.x + 2] == 0:
+            # check if there is space to the right of horizontal cars to move to
+            if car.direction == "H":
+                if car.x < 4 and self.board[car.y][car.x + 2] == 0:
                     self.board[car.y][car.x + 2] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
-                elif self.board[car.y][car.x - 1] == 0:
+                    car.x = car.x + 1
+
+                # if horizontal car can't move to right, check if space to the left to move to
+                elif car.x > 0 and self.board[car.y][car.x - 1] == 0:
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + 1] = 0
-        
+                    car.x = car.x - 1
+
+            # if car vertical check if there is space to the top to move to
+            elif car.direction == "V":
+                if car.y < 4 and self.board[car.y + 2][car.x] == 0:
+                    self.board[car.y + 2][car.x] = self.board[car.y][car.x]
+                    self.board[car.y][car.x] = 0
+                    car.y = car.y + 1
+
+                # if vertical car can't move up, check if space to the bottom to move to
+                elif car.y > 0 and self.board[car.y - 1][car.x] == 0:
+                    self.board[car.y - 1][car.x] == self.board[car.y][car.x]
+                    self.board[car.y + 1][car.x] == 0
+                    car.y = car.y - 1
+
             for r in self.board:
                 for c in r:
                     print(c,end = " ")
                 print()
             print()
-            # if car.direction == "V":
-
 
 if __name__ == '__main__':
 
