@@ -32,53 +32,53 @@ class Board():
 
     def move(self):
         
+        test_count = 0
+        # check if won
         while self.won() != True:
+            test_count += 1
+
+            if (test_count % 200000) == 0:
+                self.print_board()
             
+            # pick random number to move
             car = random.choice(self.carlist)
 
-            if self.random_number() == True:
                 
-                # check if there is space to the right of horizontal cars to move to
-                if car.direction == "H":
-                    if car.x < 4 and self.board[car.y][car.x + 2] == 0:
-                        self.board[car.y][car.x + 2] = self.board[car.y][car.x]
-                        self.board[car.y][car.x] = 0
-                        car.x = car.x + 1
+            # check if there is space to the right of horizontal cars to move to
+            if car.direction == "H":
+                if car.x < (self.dimensions - 2) and self.board[car.y][car.x + 2] == 0:
+                    self.board[car.y][car.x + 2] = self.board[car.y][car.x]
+                    self.board[car.y][car.x] = 0
+                    car.x = car.x + 1
 
-                    # if horizontal car can't move to right, check if space to the left to move to
-                    elif car.x > 0 and self.board[car.y][car.x - 1] == 0 and car.name != "X":
-                        self.board[car.y][car.x - 1] = self.board[car.y][car.x]
-                        self.board[car.y][car.x + 1] = 0
-                        car.x = car.x - 1
+                # if horizontal car can't move to right, check if space to the left to move to
+                elif car.x > 0 and self.board[car.y][car.x - 1] == 0 and car.name != "X":
+                    self.board[car.y][car.x - 1] = self.board[car.y][car.x]
+                    self.board[car.y][car.x + 1] = 0
+                    car.x = car.x - 1
 
-                # if car vertical check if there is space to the top to move to
-                if car.direction == "V":
-                    if car.y < 4 and self.board[car.y + 2][car.x] == 0:
-                        self.board[car.y + 2][car.x] = self.board[car.y][car.x]
-                        self.board[car.y][car.x] = 0
-                        car.y = car.y + 1
+            # if car vertical check if there is space to the top to move to
+            if car.direction == "V":
+                if car.y < (self.dimensions - 2) and self.board[car.y + 2][car.x] == 0:
+                    self.board[car.y + 2][car.x] = self.board[car.y][car.x]
+                    self.board[car.y][car.x] = 0
+                    car.y = car.y + 1
 
-                    # if vertical car can't move up, check if space to the bottom to move to
-                    elif car.y > 0 and self.board[car.y - 1][car.x] == 0:
-                        self.board[car.y - 1][car.x] = self.board[car.y][car.x]
-                        self.board[car.y + 1][car.x] = 0
-                        car.y = car.y - 1
+                # if vertical car can't move up, check if space to the bottom to move to
+                elif car.y > 0 and self.board[car.y - 1][car.x] == 0:
+                    self.board[car.y - 1][car.x] = self.board[car.y][car.x]
+                    self.board[car.y + 1][car.x] = 0
+                    car.y = car.y - 1
 
         print("won")
         self.print_board()
-
-    def random_number(self):
-        self.number = random.random()
-        if self.number > 0.5:
-            return True
-        return False
 
     def won(self):
         for car in self.carlist:
             if car.name == "X":
                 red_car = car
         
-        if red_car.x == 4:
+        if red_car.x == ((self.dimensions / 2) + 1):
             return True
         return False
     
