@@ -55,67 +55,64 @@ class Board():
 
             # pick random number to move
             car = random.choice(self.carlist)
+            self.old_car_x = car.x
+            self.old_car_y = car.y
+
 
             # check if there is space to the right of horizontal cars to move to
             if car.direction == "H":
-                count = 0
 
-                while True:
-                    if car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
+                while car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
 
-                        # move car over board and increment counter
-                        self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
-                        self.board[car.y][car.x] = 0
-                        car.x = car.x + 1
-                        self.counter += 1
-                        count += 1
+                    # move car over board and increment counter
+                    self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
+                    self.board[car.y][car.x] = 0
+                    car.x = car.x + 1    
 
                     if random.random() > 0.5:
                         break
 
-                while True:
-                    # if horizontal car can't move right, check if space to the left to move to
-                    if car.x > 0 and self.board[car.y][car.x - 1] == 0 and count == 0:
-                        
-                        # move car over board and increment counter
-                        self.board[car.y][car.x - 1] = self.board[car.y][car.x]
-                        self.board[car.y][car.x + (car.length - 1)] = 0
-                        car.x = car.x - 1
-                        self.counter += 1
+                # if horizontal car can't move right, check if space to the left to move to
+                while car.x > 0 and self.board[car.y][car.x - 1] == 0 and self.car_moved(car) == False:
                     
+                    # move car over board and increment counter
+                    self.board[car.y][car.x - 1] = self.board[car.y][car.x]
+                    self.board[car.y][car.x + (car.length - 1)] = 0
+                    car.x = car.x - 1
+                               
                     if random.random() > 0.5:
                         break
 
             # check if there is space to the top of vertical cars to move to
             if car.direction == "V":
-                count = 0
+            
+                while car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
 
-                while True:
+                    # move car over board and increment counter
+                    self.board[car.y + car.length][car.x] = self.board[car.y][car.x]
+                    self.board[car.y][car.x] = 0
+                    car.y = car.y + 1
 
-                    if car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
-
-                        # move car over board and increment counter
-                        self.board[car.y + car.length][car.x] = self.board[car.y][car.x]
-                        self.board[car.y][car.x] = 0
-                        car.y = car.y + 1
-                        self.counter += 1
-                        count += 1
                     if random.random() > 0.5:
                         break
-
-                while True:
 
                     # if vertical car can't move up, check if space to the bottom to move to
-                    if car.y > 0 and self.board[car.y - 1][car.x] == 0 and count == 0:
+                while car.y > 0 and self.board[car.y - 1][car.x] == 0 and self.car_moved(car) == False:
 
-                        # move car over board and increment counter
-                        self.board[car.y - 1][car.x] = self.board[car.y][car.x]
-                        self.board[car.y + (car.length - 1)][car.x] = 0
-                        car.y = car.y - 1
-                        self.counter += 1
+                    # move car over board and increment counter
+                    self.board[car.y - 1][car.x] = self.board[car.y][car.x]
+                    self.board[car.y + (car.length - 1)][car.x] = 0
+                    car.y = car.y - 1
 
                     if random.random() > 0.5:
                         break
+            
+            if self.car_moved(car):
+                self.counter += 1
+
+            self.print_board()
+            print(self.counter)
+            print()
 
         self.print_board()
         print(f"Found solution! {self.counter} cars were moved before the solution was found.")
@@ -142,6 +139,14 @@ class Board():
                 print(self.board[i][j] ,end = " ")
             print()
     
+    def car_moved(self, car):
+        x = car.x
+        y = car.y
+
+        if x != self.old_car_x or y != self.old_car_y:
+            return True
+        return False
+    
 
 if __name__ == '__main__':
 
@@ -151,7 +156,6 @@ if __name__ == '__main__':
         input_name = input(f"Please enter the name of the input file: ")
         input_file = f"Rushhour{input_name}.csv"
         
-
         # check if file exists otherwise reprompt
         if path.exists(input_file) == False:
             print("File does not exist")
