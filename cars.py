@@ -2,6 +2,8 @@ import csv
 import random
 from os import path
 import re
+import matplotlib.pyplot as plt
+
 
 class Car():
     """ Make car objects """
@@ -40,19 +42,9 @@ class Board():
     def move(self):
         """ Allows cars to move over the board """
 
-        test_count = 0
-
-        self.print_board()
-        print()
         # end loop if game is won
         while self.won() != True:
             
-            test_count += 1
-            if (test_count % 200000) == 0:
-                self.print_board()
-                print()
-                print()
-
             # pick random number to move
             car = random.choice(self.carlist)
             self.old_car_x = car.x
@@ -68,20 +60,21 @@ class Board():
                     self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.x = car.x + 1    
+                    
+                    # if random.random() > 0.3:
+                    #     break
 
-                    if random.random() > 0.5:
-                        break
-
+                moved = self.car_moved(car)
                 # if horizontal car can't move right, check if space to the left to move to
-                while car.x > 0 and self.board[car.y][car.x - 1] == 0 and self.car_moved(car) == False:
+                while car.x > 0 and self.board[car.y][car.x - 1] == 0 and moved == False:
                     
                     # move car over board and increment counter
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + (car.length - 1)] = 0
                     car.x = car.x - 1
                                
-                    if random.random() > 0.5:
-                        break
+                    # if random.random() > 0.3:
+                    #     break
 
             # check if there is space to the top of vertical cars to move to
             if car.direction == "V":
@@ -93,29 +86,28 @@ class Board():
                     self.board[car.y][car.x] = 0
                     car.y = car.y + 1
 
-                    if random.random() > 0.5:
-                        break
+                    # if random.random() > 0.3:
+                    #     break
 
-                    # if vertical car can't move up, check if space to the bottom to move to
-                while car.y > 0 and self.board[car.y - 1][car.x] == 0 and self.car_moved(car) == False:
+                moved = self.car_moved(car)
+                # if vertical car can't move up, check if space to the bottom to move to
+                while car.y > 0 and self.board[car.y - 1][car.x] == 0 and moved == False:
 
                     # move car over board and increment counter
                     self.board[car.y - 1][car.x] = self.board[car.y][car.x]
                     self.board[car.y + (car.length - 1)][car.x] = 0
                     car.y = car.y - 1
 
-                    if random.random() > 0.5:
-                        break
-            
+                    # if random.random() > 0.3:
+                    #     break
+
             if self.car_moved(car):
                 self.counter += 1
 
-            self.print_board()
-            print(self.counter)
-            print()
+        # self.print_board()
+        # print(f"Found solution! {self.counter} cars were moved before the solution was found.")
 
-        self.print_board()
-        print(f"Found solution! {self.counter} cars were moved before the solution was found.")
+        return self.counter
 
     def won(self):
         """ Check if game is won """
@@ -179,5 +171,41 @@ if __name__ == '__main__':
                 carlist.append(car)
             row_count += 1
 
-    board = Board(dimensions, carlist)
-    move = board.move()
+    
+    # move = board.move()
+    move_list = []
+    y_as = []
+    total = 0
+
+    # board = Board(dimensions, carlist)
+    # move = board.move()
+
+    for i in range(50):
+
+        with open(input_file) as input:
+            reader = csv.reader(input, delimiter=',')
+            row_count = 0
+            carlist = []
+            for row in reader:
+                if row_count != 0:
+                    x = int(row[2].strip(' "')) - 1
+                    y = int(row[3].strip('"')) - 1
+                    length = int(row[4].strip())
+                    direction = row[1].strip()
+                    car = Car(row[0], direction, x, y, length)
+                    carlist.append(car)
+                row_count += 1
+            
+        
+
+        board = Board(dimensions, carlist)
+        y_as.append(i)
+        move = board.move()
+        move_list.append(move)
+        total += move
+    
+    mean = total / 50
+    print(mean)
+    plt.scatter(y_as, move_list)
+    plt.show()
+        
