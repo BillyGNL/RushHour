@@ -117,10 +117,12 @@ class Board():
             if car.name == "X":
                 red_car = car
 
-        # check if red car is in right place
-        if red_car.x == (self.dimensions - 2):
-            return True
-        return False
+        # if all tiles to right of red_car are 0, win
+        for i in range(red_car.x + 2, self.dimensions):
+            if self.board[red_car.y][i] != 0:
+                return False
+        return True
+
 
     def print_board(self):
         """ Print the board """
@@ -186,7 +188,47 @@ class Board():
         # add_patch
 
 
+def game_iteration():
 
+    move_list = []
+    total = 0
+    iterations = 200
+    
+    for iteration in range(iterations):
+
+        with open(input_file) as input:
+            reader = csv.reader(input, delimiter=',')
+            row_count = 0
+            carlist = []
+            for row in reader:
+                if row_count != 0:
+                    x = int(row[2].strip(' "')) - 1
+                    y = int(row[3].strip('"')) - 1
+                    length = int(row[4].strip())
+                    direction = row[1].strip()
+                    car = Car(row[0], direction, x, y, length)
+                    carlist.append(car)
+                row_count += 1
+
+        board = Board(dimensions, carlist)
+        move = board.move()
+
+        move_list.append(move)
+        total += move
+    
+    sort = sorted(move_list)
+
+    mean = total / iterations
+    median = sort[int((iterations / 2) - 1)]
+    fastest = sort[0]
+    print("mean:", mean)
+    print("median:", median)
+    print("fastest:", fastest)
+    plt.hist(move_list, bins=50)
+    plt.show()
+   
+    
+        
 
 if __name__ == '__main__':
 
@@ -218,42 +260,6 @@ if __name__ == '__main__':
                 car = Car(row[0], direction, x, y, length)
                 carlist.append(car)
             row_count += 1
-
-
-    # move = board.move()
-    move_list = []
-    x_axis_list = []
-    total = 0
-    iterations = 1000
-
-    # board = Board(dimensions, carlist)
-    # move = board.move()
-
-    for i in range(iterations):
-
-        with open(input_file) as input:
-            reader = csv.reader(input, delimiter=',')
-            row_count = 0
-            carlist = []
-            for row in reader:
-                if row_count != 0:
-                    x = int(row[2].strip(' "')) - 1
-                    y = int(row[3].strip('"')) - 1
-                    length = int(row[4].strip())
-                    direction = row[1].strip()
-                    car = Car(row[0], direction, x, y, length)
-                    carlist.append(car)
-                row_count += 1
-
-        board = Board(dimensions, carlist)
-        move = board.move()
-
-        x_axis_list.append(i)
-        move_list.append(move)
-        total += move
     
-    mean = total / iterations
-    print(mean)
-    plt.scatter(x_axis_list, move_list)
-    plt.show()
-        
+    game = game_iteration()
+
