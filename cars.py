@@ -139,6 +139,54 @@ class Board():
             return True
         return False
     
+    def animation(self):
+        colors = {'A': "#cc3399",
+              'B': "#FFF000",
+              'C': "#008000",
+              'D': "#0000FF",
+              'E': "#000000",
+              'F': "#00FFFF",
+              'G': "#FF00FF",
+              'H': "#FFA500",
+              'I': "#FFE455",
+              'J': "#BC8F8F",
+              'K': "#DA70D6",
+              'L': "#00ff00",
+              'M': "#0066ff",
+              'N': "#663300",
+              'O': "#003366",
+              'P': "#660066",
+              'Q': "#666699",
+              'R': "#339966",
+              'S': "#666633",
+              'T': "#00cc00",
+              'U': "#ff0066",
+              'V': "#cc3300",
+              'W': "#ff9999",
+              'X': "#FF0000",
+              'Y': "#99cc00"
+            }
+
+        plt.figure()
+        axis = plt.axes()
+
+        for x in range(dimensions):
+            for y in range(dimensions):
+                if self.board[y][x] != 0:
+                    block = plt.Rectangle((x, y), 1, 1, fc=colors[self.board[y][x]])
+                    axis.add_patch(block)
+
+        plt.xlim(0, dimensions)
+        plt.ylim(0, dimensions)
+        plt.grid()
+        plt.show()
+        plt.cla()
+
+        # plt.rectangle
+        # add_patch
+
+
+
 
 if __name__ == '__main__':
 
@@ -171,16 +219,17 @@ if __name__ == '__main__':
                 carlist.append(car)
             row_count += 1
 
-    
+
     # move = board.move()
     move_list = []
-    y_as = []
+    x_axis_list = []
     total = 0
+    iterations = 1000
 
     # board = Board(dimensions, carlist)
     # move = board.move()
 
-    for i in range(50):
+    for i in range(iterations):
 
         with open(input_file) as input:
             reader = csv.reader(input, delimiter=',')
@@ -195,17 +244,16 @@ if __name__ == '__main__':
                     car = Car(row[0], direction, x, y, length)
                     carlist.append(car)
                 row_count += 1
-            
-        
 
         board = Board(dimensions, carlist)
-        y_as.append(i)
         move = board.move()
+
+        x_axis_list.append(i)
         move_list.append(move)
         total += move
     
-    mean = total / 50
+    mean = total / iterations
     print(mean)
-    plt.scatter(y_as, move_list)
+    plt.scatter(x_axis_list, move_list)
     plt.show()
         
