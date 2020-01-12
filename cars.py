@@ -27,6 +27,8 @@ class Board():
         self.carlist = carlist
         self.counter = 0
 
+    def fill_board(self):
+
         # fill in empty board with correct dimensions
         self.board = [[0 for x in range(dimensions)] for y in range(dimensions)]
 
@@ -123,7 +125,6 @@ class Board():
                 return False
         return True
 
-
     def print_board(self):
         """ Print the board """
 
@@ -192,7 +193,7 @@ def game_iteration():
 
     move_list = []
     total = 0
-    iterations = 200
+    iterations = 2000
     
     for iteration in range(iterations):
 
@@ -227,8 +228,6 @@ def game_iteration():
     plt.hist(move_list, bins=50)
     plt.show()
    
-    
-        
 
 if __name__ == '__main__':
 
