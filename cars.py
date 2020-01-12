@@ -27,8 +27,6 @@ class Board():
         self.carlist = carlist
         self.counter = 0
 
-    def fill_board(self):
-
         # fill in empty board with correct dimensions
         self.board = [[0 for x in range(dimensions)] for y in range(dimensions)]
 
@@ -46,12 +44,11 @@ class Board():
 
         # end loop if game is won
         while self.won() != True:
-            
+
             # pick random number to move
             car = random.choice(self.carlist)
             self.old_car_x = car.x
             self.old_car_y = car.y
-
 
             # check if there is space to the right of horizontal cars to move to
             if car.direction == "H":
@@ -61,26 +58,26 @@ class Board():
                     # move car over board and increment counter
                     self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
-                    car.x = car.x + 1    
-                    
+                    car.x = car.x + 1
+
                     # if random.random() > 0.3:
                     #     break
 
                 moved = self.car_moved(car)
                 # if horizontal car can't move right, check if space to the left to move to
                 while car.x > 0 and self.board[car.y][car.x - 1] == 0 and moved == False:
-                    
+
                     # move car over board and increment counter
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + (car.length - 1)] = 0
                     car.x = car.x - 1
-                               
+
                     # if random.random() > 0.3:
                     #     break
 
             # check if there is space to the top of vertical cars to move to
             if car.direction == "V":
-            
+
                 while car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
 
                     # move car over board and increment counter
@@ -133,7 +130,7 @@ class Board():
             for j in range(self.dimensions):
                 print(self.board[i][j] ,end = " ")
             print()
-    
+
     def car_moved(self, car):
         x = car.x
         y = car.y
@@ -141,7 +138,7 @@ class Board():
         if x != self.old_car_x or y != self.old_car_y:
             return True
         return False
-    
+
     def animation(self):
         colors = {'A': "#cc3399",
               'B': "#FFF000",
@@ -194,7 +191,7 @@ def game_iteration():
     move_list = []
     total = 0
     iterations = 2000
-    
+
     for iteration in range(iterations):
 
         with open(input_file) as input:
@@ -216,7 +213,7 @@ def game_iteration():
 
         move_list.append(move)
         total += move
-    
+
     sort = sorted(move_list)
 
     mean = total / iterations
@@ -227,7 +224,7 @@ def game_iteration():
     print("fastest:", fastest)
     plt.hist(move_list, bins=50)
     plt.show()
-   
+
 
 if __name__ == '__main__':
 
@@ -236,7 +233,7 @@ if __name__ == '__main__':
         # ask for input file
         input_name = input(f"Please enter the name of the input file: ")
         input_file = f"Rushhour{input_name}.csv"
-        
+
         # check if file exists otherwise reprompt
         if path.exists(input_file) == False:
             print("File does not exist")
@@ -259,6 +256,5 @@ if __name__ == '__main__':
                 car = Car(row[0], direction, x, y, length)
                 carlist.append(car)
             row_count += 1
-    
-    game = game_iteration()
 
+    game = game_iteration()
