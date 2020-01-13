@@ -1,4 +1,5 @@
 from cars import Board, Car
+import copy
 import csv
 from os import path
 import re
@@ -10,6 +11,8 @@ class Node():
 
         # each node contains the carlist, or current layout of the board, at the phase of the specific node
         self.carlist = carlist
+
+
 
 class Bfs():
     """ BFS algorithm"""
@@ -31,15 +34,6 @@ class Bfs():
 
     def check(self):
 
-        count = 0
-
-        for i in range(self.dimensions -1, -1, -1):
-            for j in range(self.dimensions):
-                print(self.board[i][j] ,end = " ")
-            print()
-
-        print()
-
         while True:
 
             print("LENGTH", len(self.queue))
@@ -48,13 +42,11 @@ class Bfs():
             node = self.queue.pop(0)
 
             # construct board to check for all availabe moves
-            self.board = self.construct_board(node)
+            self.construct_board(node)
             for i in range(self.dimensions -1, -1, -1):
                 for j in range(self.dimensions):
                     print(self.board[i][j] ,end = " ")
                 print()
-
-            print()
 
             # check if node has winning setup
             if self.won(node) == True:
@@ -70,8 +62,6 @@ class Bfs():
 
             # add node to list of visited carlists
             self.visited.append(node)
-
-            count += 1
 
     def construct_board(self, node):
 
@@ -104,16 +94,28 @@ class Bfs():
 
     def get_children(self, node):
 
+        original_board = copy.deepcopy(self.board)
         for car in node.carlist:
 
-            original_board = self.board
-            original_car = car
+            print(car.name)
+
+            original_x = car.x
+            original_y = car.y
             not_visited = True
+            print("BEFORE")
+
+
+            for car in node.carlist:
+                print("Name:", car.name)
+                print("x:", car.x)
+                print("y:", car.y)
+
+            print("AFTER")
 
             if car.direction == "H":
 
                 # while space to right to move to, move and create new node
-                while car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
+                if car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
 
                     self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
@@ -122,20 +124,26 @@ class Bfs():
                     # check every carlist in visited list, if carlists match break out of loop and check for next move
                     for visited_node in self.visited:
                         if visited_node.carlist == node.carlist:
+                            print("YES")
                             not_visited = False
                             break
 
                     # if carlist not in visited, create node and add to queue
                     if not_visited == True:
+                        for car in node.carlist:
+                            print("Name:", car.name)
+                            print("x:", car.x)
+                            print("y:", car.y)
                         self.queue.append(Node(node.carlist))
+                        print("MADE NODE")
                     not_visited = True
 
                 # set car.x back to value of node currently making children
-                car = original_car
-                self.board = original_board
+                car.x = original_x
+                self.board = copy.deepcopy(original_board)
 
                 # while space to left to move to, move and create new node
-                while car.x > 0 and self.board[car.y][car.x - 1] == 0:
+                if car.x > 0 and self.board[car.y][car.x - 1] == 0:
 
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + (car.length - 1)] = 0
@@ -146,17 +154,22 @@ class Bfs():
                             not_visited = False
                             break
                     if not_visited == True:
+                        for car in node.carlist:
+                            print("Name:", car.name)
+                            print("x:", car.x)
+                            print("y:", car.y)
                         self.queue.append(Node(node.carlist))
+                        print("MADE NODE")
                     not_visited = True
 
                 # set car.x back to value of node currently making children
-                car = original_car
-                self.board = original_board
+                car.x = original_x
+                self.board = copy.deepcopy(original_board)
 
             if car.direction == "V":
 
                 # while space to the top to move to, move and create new node
-                while car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
+                if car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
 
                     self.board[car.y + car.length][car.x] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
@@ -167,15 +180,17 @@ class Bfs():
                             not_visited = False
                             break
                     if not_visited == True:
+                        print(node.carlist)
                         self.queue.append(Node(node.carlist))
+                        print("MADE NODE")
                     not_visited = True
 
                 # set car.y back to value of node currently making children
-                car = original_car
-                self.board = original_board
+                car.y = original_y
+                self.board = copy.deepcopy(original_board)
 
                 # while space to bottom to move to, move and create new node
-                while car.y > 0 and self.board[car.y - 1][car.x] == 0:
+                if car.y > 0 and self.board[car.y - 1][car.x] == 0:
 
                     self.board[car.y - 1][car.x] = self.board[car.y][car.x]
                     self.board[car.y + (car.length - 1)][car.x] = 0
@@ -186,12 +201,14 @@ class Bfs():
                             not_visited = False
                             break
                     if not_visited == True:
+                        print(node.carlist)
                         self.queue.append(Node(node.carlist))
+                        print("MADE NODE")
                     not_visited = True
 
                 # set car.y back to value of node currently making children
-                car = original_car
-                self.board = original_board
+                car.y = original_y
+                self.board = copy.deepcopy(original_board)
 
 if __name__ == '__main__':
 
