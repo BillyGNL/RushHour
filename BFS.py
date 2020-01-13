@@ -49,7 +49,6 @@ class Bfs():
 
             # construct board to check for all availabe moves
             self.board = self.construct_board(node)
-
             for i in range(self.dimensions -1, -1, -1):
                 for j in range(self.dimensions):
                     print(self.board[i][j] ,end = " ")
