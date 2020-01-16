@@ -54,16 +54,12 @@ class Bfs():
 
         while True:
 
-            print("LEN")
-            print(len(self.queue))
             # pop first item in queue from queue and check if node holds winning carlist
             node = self.queue.pop(0)
 
 
             # make a deepcopy
-            #parent = copy.deepcopy(node)
             self.view_node(node)
-            print()
 
             # construct board to check for all availabe moves
             self.board = self.construct_board(node)
@@ -111,8 +107,6 @@ class Bfs():
 
     def get_children(self, node):
 
-        self.board = self.construct_board(node)
-
         for car in node.carlist:
 
             if car.direction == "H":
@@ -126,15 +120,17 @@ class Bfs():
                     node.movelist.pop()
 
                     string = ""
-                    for car in child.carlist:
-                        string += str(car.name)
-                        string += str(car.x)
-                        string += str(car.y)
+                    for cara in child.carlist:
+                        string += str(cara.name)
+                        string += str(cara.x)
+                        string += str(cara.y)
 
-                    childhash = hashlib.md5(string.encode()).hexdigest()
+                    # childhash = hashlib.md5(string.encode()).hexdigest()
 
-                    if childhash not in self.visited:
-                        self.visited[childhash] = child
+                    if string in self.visited:
+                        pass
+                    else:
+                        self.visited[string] = None
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
@@ -149,15 +145,17 @@ class Bfs():
                     node.movelist.pop()
 
                     string = ""
-                    for car in child.carlist:
-                        string += str(car.name)
-                        string += str(car.x)
-                        string += str(car.y)
+                    for cara in child.carlist:
+                        string += str(cara.name)
+                        string += str(cara.x)
+                        string += str(cara.y)
 
-                    childhash = hashlib.md5(string.encode()).hexdigest()
+                    # childhash = hashlib.md5(string.encode()).hexdigest()
 
-                    if childhash not in self.visited:
-                        self.visited[childhash] = child
+                    if string in self.visited:
+                        pass
+                    else:
+                        self.visited[string] = None
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
@@ -174,15 +172,17 @@ class Bfs():
                     node.movelist.pop()
 
                     string = ""
-                    for car in child.carlist:
-                        string += str(car.name)
-                        string += str(car.x)
-                        string += str(car.y)
+                    for cara in child.carlist:
+                        string += str(cara.name)
+                        string += str(cara.x)
+                        string += str(cara.y)
 
-                    childhash = hashlib.md5(string.encode()).hexdigest()
+                    # childhash = hashlib.md5(string.encode()).hexdigest()
 
-                    if childhash not in self.visited:
-                        self.visited[childhash] = child
+                    if string in self.visited:
+                        pass
+                    else:
+                        self.visited[string] = None
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
@@ -197,15 +197,17 @@ class Bfs():
                     node.movelist.pop()
 
                     string = ""
-                    for car in child.carlist:
-                        string += str(car.name)
-                        string += str(car.x)
-                        string += str(car.y)
+                    for cara in child.carlist:
+                        string += str(cara.name)
+                        string += str(cara.x)
+                        string += str(cara.y)
 
-                    childhash = hashlib.md5(string.encode()).hexdigest()
+                    # childhash = hashlib.md5(string.encode()).hexdigest()
 
-                    if childhash not in self.visited:
-                        self.visited[childhash] = child
+                    if string in self.visited:
+                        pass
+                    else:
+                        self.visited[string] = None
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
