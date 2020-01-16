@@ -37,15 +37,14 @@ class Bfs():
         self.queue = [self.start_node]
 
         # the visited will contain all checked discovered nodes
-        self.visited = {}
+        self.visited = set()
         start_node_string = ""
         for car in start_node.carlist:
             start_node_string += str(car.name)
             start_node_string += str(car.x)
             start_node_string += str(car.y)
 
-        start_node_hash = hashlib.md5(start_node_string.encode()).hexdigest()
-        self.visited[start_node_hash] = start_node
+        self.visited.add(start_node_string)
 
         # constructing first board
         self.board = self.construct_board(self.start_node)
@@ -56,10 +55,7 @@ class Bfs():
 
             # pop first item in queue from queue and check if node holds winning carlist
             node = self.queue.pop(0)
-
-
-            # make a deepcopy
-            self.view_node(node)
+            print(len(node.movelist))
 
             # construct board to check for all availabe moves
             self.board = self.construct_board(node)
@@ -130,7 +126,7 @@ class Bfs():
                     if string in self.visited:
                         pass
                     else:
-                        self.visited[string] = None
+                        self.visited.add(string)
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
@@ -155,7 +151,7 @@ class Bfs():
                     if string in self.visited:
                         pass
                     else:
-                        self.visited[string] = None
+                        self.visited.add(string)
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
@@ -182,7 +178,7 @@ class Bfs():
                     if string in self.visited:
                         pass
                     else:
-                        self.visited[string] = None
+                        self.visited.add(string)
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
@@ -207,7 +203,7 @@ class Bfs():
                     if string in self.visited:
                         pass
                     else:
-                        self.visited[string] = None
+                        self.visited.add(string)
                         self.queue.append(child)
 
                     # set car.x back to value of node currently making children
@@ -247,7 +243,6 @@ if __name__ == '__main__':
 
     with open(input_file) as input:
         reader = csv.reader(input, delimiter=',')
-        print(reader)
         row_count = 0
         carlist = []
 
