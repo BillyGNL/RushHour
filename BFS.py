@@ -3,6 +3,7 @@ import csv
 from os import path
 import re
 import copy
+import hashlib
 
 class Node():
     """ Create node for BFS algorithm which holds current carlist for node """
@@ -23,8 +24,6 @@ class Node():
                     return False
             return True
 
-
-
 class Bfs():
     """ BFS algorithm"""
 
@@ -38,21 +37,33 @@ class Bfs():
         self.queue = [self.start_node]
 
         # the visited will contain all checked discovered nodes
-        self.visited = []
+        self.visited = {}
+        start_node_string = ""
+        for car in start_node.carlist:
+            start_node_string += str(car.name)
+            start_node_string += str(car.x)
+            start_node_string += str(car.y)
+
+        start_node_hash = hashlib.md5(start_node_string.encode()).hexdigest()
+        self.visited[start_node_hash] = start_node
 
         # constructing first board
         self.board = self.construct_board(self.start_node)
 
     def check(self):
 
-        # for i in range(2):
         while True:
 
+            print("LEN")
+            print(len(self.queue))
             # pop first item in queue from queue and check if node holds winning carlist
             node = self.queue.pop(0)
 
+
             # make a deepcopy
-            parent = copy.deepcopy(node)
+            #parent = copy.deepcopy(node)
+            self.view_node(node)
+            print()
 
             # construct board to check for all availabe moves
             self.board = self.construct_board(node)
@@ -62,14 +73,12 @@ class Bfs():
                 self.view_node(node)
                 print("succes")
                 print(node.movelist)
+                print(len(node.movelist))
                 exit()
-
-            # add node to list of visited carlists
-            self.visited.append(parent)
-
 
             # if not winning node, generate all children for node which are automatically added to queue
             self.get_children(node)
+
 
     def construct_board(self, node):
 
@@ -102,81 +111,57 @@ class Bfs():
 
     def get_children(self, node):
 
-        # print("QUEUE")
-        # self.view_queue()
-
-        # print("VISITED")
-        # for test_node in self.visited:
-        #     self.view_node(test_node)
-        # fetch the board for the given node
         self.board = self.construct_board(node)
 
-        # print("NODE WE ARE GETTING CHILDREN FROM:")
-        # self.view_node(node)
-        # loop through all the cars and make children where necessary
         for car in node.carlist:
-
-            # print(f"current car selected: {car.name}")
 
             if car.direction == "H":
 
                 # while space to right to move to, move and create new node
                 if car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
-                    # print("move to the right")
 
-                    # edit carlist
                     car.x = car.x + 1
                     node.movelist.append(f"{car.name} + 1")
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
-                    # print("CHILD WITH RIGHT MOVE CREATED:")
-                    # self.view_node(child)
 
-                    # if self.check_visited(child) == False:
-                    #     print("WTF")
+                    string = ""
+                    for car in child.carlist:
+                        string += str(car.name)
+                        string += str(car.x)
+                        string += str(car.y)
 
-                    # if self.check_queue(child) == False:
-                    #     print("WTF2")
+                    childhash = hashlib.md5(string.encode()).hexdigest()
 
-                    # # add child if it hasn't been visited yet
-                    if self.check_visited(child) == False and self.check_queue(child) == False:
+                    if childhash not in self.visited:
+                        self.visited[childhash] = child
                         self.queue.append(child)
-                        # print("CHILD THAT WAS ADDED")
-                        # self.view_node(child)
-                        # print("QUEUE NOW:")
-                        # self.view_queue()
-
-                    #     print("ADDED NODE")
-                    # else:
-                    #     print("NODE ALREADY VISITED")
 
                     # set car.x back to value of node currently making children
                     car.x = car.x - 1
-                    # print("NODE SHOULD BE THE ORIGINAL AGAIN")
-                    # self.view_node(node)
 
                 # while space to left to move to, move and create new node
                 if car.x > 0 and self.board[car.y][car.x - 1] == 0:
-                    # print("move to the left")
+
                     car.x = car.x - 1
                     node.movelist.append(f"{car.name} - 1")
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
-                    # print("CHILD WITH LEFT MOVE CREATED:")
-                    # self.view_node(child)
 
-                    # add child if it hasn't been visited yet
-                    if self.check_visited(child) == False and self.check_queue(child) == False:
+                    string = ""
+                    for car in child.carlist:
+                        string += str(car.name)
+                        string += str(car.x)
+                        string += str(car.y)
+
+                    childhash = hashlib.md5(string.encode()).hexdigest()
+
+                    if childhash not in self.visited:
+                        self.visited[childhash] = child
                         self.queue.append(child)
-                        # print("CHILD THAT WAS ADDED:")
-                        # self.view_node(child)
-                        # print("QUEUE NOW:")
-                        # self.view_queue()
 
                     # set car.x back to value of node currently making children
                     car.x = car.x + 1
-                    # print("NODE SHOULD BE THE ORIGINAL AGAIN")
-                    # self.view_node(node)
 
             if car.direction == "V":
 
@@ -187,18 +172,21 @@ class Bfs():
                     node.movelist.append(f"{car.name} + 1")
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
-                    # print("CHILD WITH UP MOVE CREATED:")
-                    # self.view_node(child)
 
-                    # add child if it hasn't been visited yet
-                    if self.check_visited(child) == False and self.check_queue(child) == False:
+                    string = ""
+                    for car in child.carlist:
+                        string += str(car.name)
+                        string += str(car.x)
+                        string += str(car.y)
+
+                    childhash = hashlib.md5(string.encode()).hexdigest()
+
+                    if childhash not in self.visited:
+                        self.visited[childhash] = child
                         self.queue.append(child)
-                        # print("ADDED NODE")
 
                     # set car.x back to value of node currently making children
                     car.y = car.y - 1
-                    # print("NODE SHOULD BE THE ORIGINAL AGAIN")
-                    # self.view_node(node)
 
                 # while space to bottom to move to, move and create new node
                 if car.y > 0 and self.board[car.y - 1][car.x] == 0:
@@ -207,48 +195,22 @@ class Bfs():
                     node.movelist.append(f"{car.name} - 1")
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
-                    # print("CHILD WITH DOWN MOVE CREATED:")
-                    # self.view_node(child)
 
-                    # add child if it hasn't been visited yet
-                    if self.check_visited(child) == False and self.check_queue(child) == False:
+                    string = ""
+                    for car in child.carlist:
+                        string += str(car.name)
+                        string += str(car.x)
+                        string += str(car.y)
+
+                    childhash = hashlib.md5(string.encode()).hexdigest()
+
+                    if childhash not in self.visited:
+                        self.visited[childhash] = child
                         self.queue.append(child)
-                        # print("ADDED NODE")
 
                     # set car.x back to value of node currently making children
                     car.y = car.y + 1
-                    # print("NODE SHOULD BE THE ORIGINAL AGAIN")
-                    # self.view_node(node)
 
-
-    def check_visited(self, node):
-        """ Returns True if the node has been visited and False if it has not been visited """
-
-        count = 0
-        for visited_node in self.visited:
-            for car1, car2 in zip(visited_node.carlist, node.carlist):
-                if car1.x != car2.x or car1.y != car2.y:
-                    count += 1
-                    break
-        if count == len(self.visited):
-            return False
-        return True
-
-    def check_queue(self, node):
-        """ Returns True if the node is in the queue and False otherwise """
-
-        # loop through the queue
-
-        count = 0
-        for visited_node in self.queue:
-            for car1, car2 in zip(visited_node.carlist, node.carlist):
-                if car1.x != car2.x or car1.y != car2.y:
-                    count += 1
-                    break
-
-        if count == len(self.queue):
-            return False
-        return True
 
     def view_node(self, node):
         """ Prints the carlist of the node for testing purposes """
@@ -263,9 +225,6 @@ class Bfs():
         for node in self.queue:
             self.view_node(node)
             print("\n")
-
-
-
 
 if __name__ == '__main__':
 
