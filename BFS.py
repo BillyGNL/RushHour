@@ -55,17 +55,31 @@ class Bfs():
 
             # pop first item in queue from queue and check if node holds winning carlist
             node = self.queue.pop(0)
-            print(len(node.movelist))
-
+    
             # construct board to check for all availabe moves
             self.board = self.construct_board(node)
 
+            length = len(node.movelist)
+            for move in range(length):
+                splitted_move = node.movelist[move].split(" ")
+                splitted_move_1 = node.movelist[move - 1].split(" ")
+                if splitted_move[0] == splitted_move_1[0] and len(node.movelist) > 2:
+                    
+                    
+                    splitted = node.movelist[move - 1].split(" ")
+                    splitted[2] = str(int(splitted[2]) + 1)
+                    joined = ' '.join(splitted)
+                    node.movelist[move - 1] = joined
+
+                    node.movelist.remove(node.movelist[move])
+                    break
+            
             # check if node has winning setup
             if self.won(node) == True:
                 self.view_node(node)
                 print("succes")
-                print(node.movelist)
                 print(len(node.movelist))
+                print(node.movelist)
                 exit()
 
             # if not winning node, generate all children for node which are automatically added to queue
@@ -111,7 +125,9 @@ class Bfs():
                 if car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
 
                     car.x = car.x + 1
+                   
                     node.movelist.append(f"{car.name} + 1")
+                    
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
 
@@ -136,7 +152,9 @@ class Bfs():
                 if car.x > 0 and self.board[car.y][car.x - 1] == 0:
 
                     car.x = car.x - 1
+                    
                     node.movelist.append(f"{car.name} - 1")
+                   
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
 
@@ -163,7 +181,9 @@ class Bfs():
                 if car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
                     car.y = car.y + 1
 
+                   
                     node.movelist.append(f"{car.name} + 1")
+                   
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
 
@@ -188,9 +208,13 @@ class Bfs():
                 if car.y > 0 and self.board[car.y - 1][car.x] == 0:
                     # print("move down")
                     car.y = car.y - 1
+
+                   
                     node.movelist.append(f"{car.name} - 1")
+                    
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
+                    
 
                     string = ""
                     for cara in child.carlist:
@@ -208,7 +232,7 @@ class Bfs():
 
                     # set car.x back to value of node currently making children
                     car.y = car.y + 1
-
+            
 
     def view_node(self, node):
         """ Prints the carlist of the node for testing purposes """

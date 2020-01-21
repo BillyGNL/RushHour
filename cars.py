@@ -182,15 +182,12 @@ class Board():
         plt.show()
         plt.cla()
 
-        # plt.rectangle
-        # add_patch
-
 
 def game_iteration():
 
     move_list = []
     total = 0
-    iterations = 2000
+    iterations = 100
 
     for iteration in range(iterations):
 
