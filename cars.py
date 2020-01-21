@@ -229,7 +229,7 @@ if __name__ == '__main__':
 
         # ask for input file
         input_name = input(f"Please enter the name of the input file: ")
-        input_file = f"Rushhour{input_name}.csv"
+        input_file = f"Boards/Rushhour{input_name}.csv"
 
         # check if file exists otherwise reprompt
         if path.exists(input_file) == False:

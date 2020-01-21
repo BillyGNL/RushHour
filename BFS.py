@@ -55,7 +55,7 @@ class Bfs():
 
             # pop first item in queue from queue and check if node holds winning carlist
             node = self.queue.pop(0)
-    
+
             # construct board to check for all availabe moves
             self.board = self.construct_board(node)
 
@@ -64,8 +64,7 @@ class Bfs():
                 splitted_move = node.movelist[move].split(" ")
                 splitted_move_1 = node.movelist[move - 1].split(" ")
                 if splitted_move[0] == splitted_move_1[0] and len(node.movelist) > 2:
-                    
-                    
+
                     splitted = node.movelist[move - 1].split(" ")
                     splitted[2] = str(int(splitted[2]) + 1)
                     joined = ' '.join(splitted)
@@ -73,13 +72,21 @@ class Bfs():
 
                     node.movelist.remove(node.movelist[move])
                     break
-            
+
             # check if node has winning setup
             if self.won(node) == True:
-                self.view_node(node)
-                print("succes")
-                print(len(node.movelist))
                 print(node.movelist)
+
+                self.view_node(node)
+                with open ('solution.csv', 'w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(["car", "move"])
+                    for i in range(len(node.movelist)):
+                        if node.movelist[i][2] == "-":
+                            negative_value = "-"+str(node.movelist[i][4])
+                            writer.writerow([node.movelist[i][0], negative_value])
+                        else:
+                            writer.writerow([node.movelist[i][0], node.movelist[i][4]])
                 exit()
 
             # if not winning node, generate all children for node which are automatically added to queue
@@ -125,9 +132,9 @@ class Bfs():
                 if car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
 
                     car.x = car.x + 1
-                   
+
                     node.movelist.append(f"{car.name} + 1")
-                    
+
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
 
@@ -152,9 +159,9 @@ class Bfs():
                 if car.x > 0 and self.board[car.y][car.x - 1] == 0:
 
                     car.x = car.x - 1
-                    
+
                     node.movelist.append(f"{car.name} - 1")
-                   
+
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
 
@@ -181,9 +188,9 @@ class Bfs():
                 if car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
                     car.y = car.y + 1
 
-                   
+
                     node.movelist.append(f"{car.name} + 1")
-                   
+
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
 
@@ -209,12 +216,12 @@ class Bfs():
                     # print("move down")
                     car.y = car.y - 1
 
-                   
+
                     node.movelist.append(f"{car.name} - 1")
-                    
+
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
                     node.movelist.pop()
-                    
+
 
                     string = ""
                     for cara in child.carlist:
@@ -232,7 +239,7 @@ class Bfs():
 
                     # set car.x back to value of node currently making children
                     car.y = car.y + 1
-            
+
 
     def view_node(self, node):
         """ Prints the carlist of the node for testing purposes """
@@ -254,7 +261,7 @@ if __name__ == '__main__':
 
         # ask for input file
         input_name = input(f"Please enter the name of the input file: ")
-        input_file = f"Rushhour{input_name}.csv"
+        input_file = f"Boards/Rushhour{input_name}.csv"
 
         # check if file exists otherwise reprompt
         if path.exists(input_file) == False:
