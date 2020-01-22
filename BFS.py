@@ -6,48 +6,42 @@ import copy
 import hashlib
 
 class Node():
-    """ Create node for BFS algorithm which holds current carlist for node """
+    """ Creates nodes for BFS algorithm which hold carlist and movelist """
 
     def __init__(self, carlist, movelist):
 
         # each node contains the carlist, or current layout of the board, at the phase of the specific node
         self.carlist = carlist
 
+        # each node contains a list of all previous moves which have led to the current carlist
         self.movelist = movelist
 
-    def __eq__(self, other):
-        if isinstance(other, Node):
-            for car1, car2 in zip(self.carlist, other.carlist):
-                if car1.x != car2.x:
-                    return False
-                if car.y != car2.y:
-                    return False
-            return True
+class BFS():
+    """ Contains logic for breadt-first search algorithm used to solve Rush Hour """
 
-class Bfs():
-    """ BFS algorithm"""
+    def __init__(self, root_node, dimensions):
 
-    def __init__(self, start_node, dimensions):
+        # each BFS starts from a root node, which as a carlist has the initial layout of the game
+        self.root_node = root_node
 
-        # the root node, the first layout or carlist
-        self.start_node = start_node
+        # holds the value for the dimensions of the board
         self.dimensions = dimensions
 
-        # the queue will contain all to be checked discovered nodes which are not already in the visited list
-        self.queue = [self.start_node]
+        # the queue will contain all to be checked discovered nodes, starting with the root node
+        self.queue = [self.root_node]
 
-        # the visited will contain all checked discovered nodes
+        # the visited set will contain all carlists which have been checked
         self.visited = set()
-        start_node_string = ""
-        for car in start_node.carlist:
-            start_node_string += str(car.name)
-            start_node_string += str(car.x)
-            start_node_string += str(car.y)
+        root_node_string = ""
+        for car in root_node.carlist:
+            root_node_string += str(car.name)
+            root_node_string += str(car.x)
+            root_node_string += str(car.y)
 
-        self.visited.add(start_node_string)
+        self.visited.add(root_node_string)
 
         # constructing first board
-        self.board = self.construct_board(self.start_node)
+        self.board = self.construct_board(self.root_node)
 
     def check(self):
 
@@ -289,6 +283,6 @@ if __name__ == '__main__':
             row_count += 1
 
     movelist = []
-    start_node = Node(carlist, movelist)
-    algorithm = Bfs(start_node, dimensions)
+    root_node = Node(carlist, movelist)
+    algorithm = BFS(root_node, dimensions)
     algorithm.check()
