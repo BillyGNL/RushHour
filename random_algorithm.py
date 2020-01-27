@@ -3,7 +3,7 @@ import csv
 import random
 from os import path
 import re
-import matplotlib.pyplot as plt
+import copy
 
 class Car():
     """ Make car objects """
@@ -24,7 +24,8 @@ class Board():
         """ Initialize board """
 
         self.dimensions = dimensions
-        self.carlist = carlist
+        self.move_list = []
+        self.carlist = copy.deepcopy(carlist)
         self.counter = 0
 
         # make and fill board using the provided dimensions
@@ -65,7 +66,7 @@ class Board():
                     self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.x = car.x + 1
-
+                    self.move_list.append(f"{car.name} + 1")
                 moved = self.car_moved(car)
 
                 # if horizontal car can't move right, check if space to the left to move to
@@ -75,6 +76,7 @@ class Board():
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + (car.length - 1)] = 0
                     car.x = car.x - 1
+                    self.move_list.append(f"{car.name} - 1")
 
             # check if there is space to the top of vertical cars to move to
             if car.direction == "V":
@@ -85,6 +87,7 @@ class Board():
                     self.board[car.y + car.length][car.x] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.y = car.y + 1
+                    self.move_list.append(f"{car.name} + 1")
 
                 moved = self.car_moved(car)
 
@@ -95,6 +98,7 @@ class Board():
                     self.board[car.y - 1][car.x] = self.board[car.y][car.x]
                     self.board[car.y + (car.length - 1)][car.x] = 0
                     car.y = car.y - 1
+                    self.move_list.append(f"{car.name} - 1")
 
             # increment counter by 1 if the car has moved
             if self.car_moved(car):
@@ -124,75 +128,8 @@ class Board():
             return True
         return False
 
-        for x in range(dimensions):
-            for y in range(dimensions):
-                if self.board[y][x] != 0:
-                    block = plt.Rectangle((x, y), 1, 1, fc=colors[self.board[y][x]])
-                    axis.add_patch(block)
-
-        plt.xlim(0, dimensions)
-        plt.ylim(0, dimensions)
-        plt.grid()
-        plt.show()
-        plt.cla()
-
-
-def game_iteration():
-
-    move_list = []
-    total = 0
-    iterations = 100
-
-    for iteration in range(iterations):
-
-        with open(input_file) as input:
-            reader = csv.reader(input, delimiter=',')
-            row_count = 0
-            carlist = []
-            for row in reader:
-                if row_count != 0:
-                    x = int(row[2].strip(' "')) - 1
-                    y = int(row[3].strip('"')) - 1
-                    length = int(row[4].strip())
-                    direction = row[1].strip()
-                    car = Car(row[0], direction, x, y, length)
-                    carlist.append(car)
-                row_count += 1
-
-        board = Board(dimensions, carlist)
-        move = board.move()
-
-        move_list.append(move)
-        total += move
-
-    sort = sorted(move_list)
-
-    mean = total / iterations
-    median = sort[int((iterations / 2) - 1)]
-    fastest = sort[0]
-    print("mean:", mean)
-    print("median:", median)
-    print("fastest:", fastest)
-    plt.hist(move_list, bins=50)
-    plt.show()
-
-
-if __name__ == '__main__':
-
-    while True:
-
-        # ask for input file
-        input_name = input(f"Please enter the name of the input file: ")
-        input_file = f"Boards/Rushhour{input_name}.csv"
-
-        # check if file exists otherwise reprompt
-        if path.exists(input_file) == False:
-            print("File does not exist")
-        else:
-            break
-
-    # get board dimensions from file title, which is the 8th character
-    dimensions = int(re.search(r'\d+', input_name).group())
+def read_file(input_file):
+    """ Read board file and return a list of car objects """
 
     with open(input_file) as input:
         reader = csv.reader(input, delimiter=',')
@@ -208,4 +145,54 @@ if __name__ == '__main__':
                 carlist.append(car)
             row_count += 1
 
-    game = game_iteration()
+    return carlist
+
+def game_iteration(iterations):
+
+    # set upperbound to a very high number
+    upperbound = 1000000
+    original_carlist = read_file(input_file)
+    for iteration in range(iterations):
+
+        board = Board(dimensions, original_carlist, upperbound)
+        move = board.move()
+
+        if move < board.upperbound:
+            upperbound = move
+            shortest_list = board.move_list
+    print(f"Fastest: {upperbound}")
+    print(shortest_list)
+
+if __name__ == '__main__':
+
+    valid_file = False
+    while valid_file == False:
+
+        # ask for input file
+        input_name = input(f"Please enter the name of the input file: ")
+        input_file = f"Boards/Rushhour{input_name}.csv"
+
+        # check if file exists otherwise reprompt
+        if path.exists(input_file) == False:
+            print("File does not exist")
+        else:
+            valid_file = True
+
+    # fetch a positive integer from the user
+    valid_integer = False
+    while valid_integer == False:
+
+        try:
+            iterations = int(input(f"How many iterations would you like to run? :"))
+        except:
+            print("Please provide a positive integer, try again")
+            continue
+
+        if iterations > 0:
+            valid_integer = True
+
+    # fetch dimensions from file title
+    dimensions = int(re.search(r'\d+', input_name).group())
+
+    # start the random algorithm
+    game = game_iteration(iterations)
