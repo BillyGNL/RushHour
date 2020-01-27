@@ -1,9 +1,9 @@
+
 import csv
 import random
 from os import path
 import re
 import matplotlib.pyplot as plt
-
 
 class Car():
     """ Make car objects """
@@ -27,26 +27,32 @@ class Board():
         self.carlist = carlist
         self.counter = 0
 
-        # fill in empty board with correct dimensions
+        # make and fill board using the provided dimensions
         self.board = [[0 for x in range(dimensions)] for y in range(dimensions)]
 
         # fill in all cars on correct places in board
         for car in carlist:
+
+            # if car is positioned horizontally
             if car.direction == "H":
                 for i in range(car.length):
                     self.board[car.y][car.x + i] = car.name
+
+            # if car is positioned vertically
             if car.direction == "V":
                 for i in range(car.length):
                     self.board[car.y + i][car.x] = car.name
 
     def move(self):
-        """ Allows cars to move over the board """
+        """ Allows cars to move over the board, returns a counter of the number of moves made """
 
         # end loop if game is won
         while self.won() != True:
 
-            # pick random number to move
+            # pick a random car to move
             car = random.choice(self.carlist)
+
+            # remember the x and y coordinate before moving the car
             self.old_car_x = car.x
             self.old_car_y = car.y
 
@@ -55,81 +61,60 @@ class Board():
 
                 while car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
 
-                    # move car over board and increment counter
+                    # move car to the right on the board
                     self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.x = car.x + 1
 
-                    # if random.random() > 0.3:
-                    #     break
-
                 moved = self.car_moved(car)
+
                 # if horizontal car can't move right, check if space to the left to move to
                 while car.x > 0 and self.board[car.y][car.x - 1] == 0 and moved == False:
 
-                    # move car over board and increment counter
+                    # move car to the left on the board
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + (car.length - 1)] = 0
                     car.x = car.x - 1
-
-                    # if random.random() > 0.3:
-                    #     break
 
             # check if there is space to the top of vertical cars to move to
             if car.direction == "V":
 
                 while car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
 
-                    # move car over board and increment counter
+                    # move car up on the board
                     self.board[car.y + car.length][car.x] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.y = car.y + 1
 
-                    # if random.random() > 0.3:
-                    #     break
-
                 moved = self.car_moved(car)
+
                 # if vertical car can't move up, check if space to the bottom to move to
                 while car.y > 0 and self.board[car.y - 1][car.x] == 0 and moved == False:
 
-                    # move car over board and increment counter
+                    # move car down on the board
                     self.board[car.y - 1][car.x] = self.board[car.y][car.x]
                     self.board[car.y + (car.length - 1)][car.x] = 0
                     car.y = car.y - 1
 
-                    # if random.random() > 0.3:
-                    #     break
-
+            # increment counter by 1 if the car has moved
             if self.car_moved(car):
                 self.counter += 1
-
-        # self.print_board()
-        # print(f"Found solution! {self.counter} cars were moved before the solution was found.")
 
         return self.counter
 
     def won(self):
-        """ Check if game is won """
+        """ Returns True if the game is won """
 
         # select red car
         for car in self.carlist:
             if car.name == "X":
                 red_car = car
 
-        # if all tiles to right of red_car are 0, win
+        # if all tiles to right of red_car are 0 then the win condition has been met
         for i in range(red_car.x + 2, self.dimensions):
             if self.board[red_car.y][i] != 0:
                 return False
         return True
-
-    def print_board(self):
-        """ Print the board """
-
-        # print board in correct order
-        for i in range(self.dimensions -1, -1, -1):
-            for j in range(self.dimensions):
-                print(self.board[i][j] ,end = " ")
-            print()
 
     def car_moved(self, car):
         x = car.x
@@ -138,37 +123,6 @@ class Board():
         if x != self.old_car_x or y != self.old_car_y:
             return True
         return False
-
-    def animation(self):
-        colors = {'A': "#cc3399",
-              'B': "#FFF000",
-              'C': "#008000",
-              'D': "#0000FF",
-              'E': "#000000",
-              'F': "#00FFFF",
-              'G': "#FF00FF",
-              'H': "#FFA500",
-              'I': "#FFE455",
-              'J': "#BC8F8F",
-              'K': "#DA70D6",
-              'L': "#00ff00",
-              'M': "#0066ff",
-              'N': "#663300",
-              'O': "#003366",
-              'P': "#660066",
-              'Q': "#666699",
-              'R': "#339966",
-              'S': "#666633",
-              'T': "#00cc00",
-              'U': "#ff0066",
-              'V': "#cc3300",
-              'W': "#ff9999",
-              'X': "#FF0000",
-              'Y': "#99cc00"
-            }
-
-        plt.figure()
-        axis = plt.axes()
 
         for x in range(dimensions):
             for y in range(dimensions):

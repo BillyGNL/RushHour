@@ -1,9 +1,9 @@
-from cars import Board, Car
+from random_algorithm import Board, Car
 import csv
+import os
 from os import path
 import re
 import copy
-import hashlib
 
 class Node():
     """ Creates nodes for BFS algorithm which hold carlist and movelist """
@@ -24,7 +24,7 @@ class BFS():
         # each BFS starts from a root node, which as a carlist has the initial layout of the game
         self.root_node = root_node
 
-        # holds the value for the dimensions of the board
+        # BFS holds the value for the dimensions of the board being played
         self.dimensions = dimensions
 
         # the queue will contain all to be checked discovered nodes, starting with the root node
@@ -32,46 +32,33 @@ class BFS():
 
         # the visited set will contain all carlists which have been checked
         self.visited = set()
+
+        # the set contains strings representing carlists
         root_node_string = ""
         for car in root_node.carlist:
-            root_node_string += str(car.name)
+            root_node_string += car.name
             root_node_string += str(car.x)
             root_node_string += str(car.y)
-
         self.visited.add(root_node_string)
 
-        # constructing first board
+        # constructing starting board
         self.board = self.construct_board(self.root_node)
 
     def check(self):
+        """ Check method contains the iterative part of the BFS algorithm """
 
-        while True:
+        while self.queue:
 
-            # pop first item in queue from queue and check if node holds winning carlist
+            # pop first item in queue and assign to node variable
             node = self.queue.pop(0)
 
-            # construct board to check for all availabe moves
+            # construct board to check for all possible moves to make
             self.board = self.construct_board(node)
-
-            length = len(node.movelist)
-            for move in range(length):
-                splitted_move = node.movelist[move].split(" ")
-                splitted_move_1 = node.movelist[move - 1].split(" ")
-                if splitted_move[0] == splitted_move_1[0] and len(node.movelist) > 2:
-
-                    splitted = node.movelist[move - 1].split(" ")
-                    splitted[2] = str(int(splitted[2]) + 1)
-                    joined = ' '.join(splitted)
-                    node.movelist[move - 1] = joined
-
-                    node.movelist.remove(node.movelist[move])
-                    break
 
             # check if node has winning setup
             if self.won(node) == True:
-                print(node.movelist)
 
-                self.view_node(node)
+                # write all moves leading to fastest solution into csv file
                 with open ('solution.csv', 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(["car", "move"])
@@ -81,6 +68,9 @@ class BFS():
                             writer.writerow([node.movelist[i][0], negative_value])
                         else:
                             writer.writerow([node.movelist[i][0], node.movelist[i][4]])
+
+                    # open solution file
+                    os.startfile('solution.csv')
                 exit()
 
             # if not winning node, generate all children for node which are automatically added to queue
@@ -88,11 +78,12 @@ class BFS():
 
 
     def construct_board(self, node):
+        """ Construct_board method contains logic for constructing the board """
 
         # create empty board with correct dimensions
         self.board = [[0 for x in range(self.dimensions)] for y in range(self.dimensions)]
 
-        # fill in all cars on correct places in board
+        # fill in all cars on correct places in board for given carlist
         for car in node.carlist:
             if car.direction == "H":
                 for i in range(car.length):
@@ -104,68 +95,109 @@ class BFS():
         return self.board
 
     def won(self, node):
+        """ Won method contains conditions for winning setup """
 
         # select red car
         for car in node.carlist:
             if car.name == "X":
                 red_car = car
 
-        # if all tiles to right of red_car are 0, win
+        # if all tiles to right of red_car are 0, game is won
         for i in range(red_car.x + 2, self.dimensions):
             if self.board[red_car.y][i] != 0:
                 return False
         return True
 
     def get_children(self, node):
+        """ Get_children method contains logic for creating all possible children for each node """
 
+        # loop through every car in carlist
         for car in node.carlist:
 
+            # check if direction of car is horizontal
             if car.direction == "H":
 
-                # while space to right to move to, move and create new node
+                # if space to the right of car availabe to move to, move 1 place to the right
                 if car.x < (self.dimensions - car.length) and self.board[car.y][car.x + car.length] == 0:
 
+                    # adjust x-coordinate in carlist
                     car.x = car.x + 1
 
-                    node.movelist.append(f"{car.name} + 1")
+                    # check if previous move was made by same car
+                    if len(node.movelist) > 0 and node.movelist[-1][0] == car.name:
 
+                        # if previous move was made my same car, add 1 to move
+                        previous_move = node.movelist.pop().split(" ")
+                        previous_move[2] = str(int(previous_move[2]) + 1)
+                        new_move = ' '.join(previous_move)
+                        node.movelist.append(new_move)
+
+                    # if previous move was not made by same car, add new move to movelist
+                    else:
+                    	node.movelist.append(f"{car.name} + 1")
+
+                    # make deepcopy of child
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
-                    node.movelist.pop()
 
+                    # if previous move was made my same car, subtract 1 from last move for node currently making children
+                    if node.movelist[-1][-1] != '1':
+                        changed_move = node.movelist.pop().split(" ")
+                        changed_move[2] = str(int(changed_move[2]) - 1)
+                        original_move = ' '.join(changed_move)
+                        node.movelist.append(original_move)
+
+                    # else remove previously added move for node currently making children
+                    else:
+                        node.movelist.pop()
+
+                    # construct string representing carlist of child
                     string = ""
-                    for cara in child.carlist:
-                        string += str(cara.name)
-                        string += str(cara.x)
-                        string += str(cara.y)
+                    for child_car in child.carlist:
+                        string += child_car.name
+                        string += str(child_car.x)
+                        string += str(child_car.y)
 
-                    # childhash = hashlib.md5(string.encode()).hexdigest()
-
+                    # check if any node with carlist of child already exists
                     if string in self.visited:
+
+                        # if exists, forget about child and pass to next iteration
                         pass
+
+                    # if not exists, add child to set of visited carlists and to queue to be checked
                     else:
                         self.visited.add(string)
                         self.queue.append(child)
 
-                    # set car.x back to value of node currently making children
+                    # set x-coordinate back to value of node currently making children
                     car.x = car.x - 1
 
-                # while space to left to move to, move and create new node
+                # if space to the left of car availabe to move to, move 1 place to the left
                 if car.x > 0 and self.board[car.y][car.x - 1] == 0:
-
                     car.x = car.x - 1
 
-                    node.movelist.append(f"{car.name} - 1")
+                    if len(node.movelist) > 0 and node.movelist[-1][0] == car.name:
+                        previous_move = node.movelist.pop().split(" ")
+                        previous_move[2] = str(int(previous_move[2]) + 1)
+                        new_move = ' '.join(previous_move)
+                        node.movelist.append(new_move)
+                    else:
+                    	node.movelist.append(f"{car.name} - 1")
 
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
-                    node.movelist.pop()
+
+                    if node.movelist[-1][-1] != '1':
+                        changed_move = node.movelist.pop().split(" ")
+                        changed_move[2] = str(int(changed_move[2]) - 1)
+                        original_move = ' '.join(changed_move)
+                        node.movelist.append(original_move)
+                    else:
+                        node.movelist.pop()
 
                     string = ""
-                    for cara in child.carlist:
-                        string += str(cara.name)
-                        string += str(cara.x)
-                        string += str(cara.y)
-
-                    # childhash = hashlib.md5(string.encode()).hexdigest()
+                    for child_car in child.carlist:
+                        string += child_car.name
+                        string += str(child_car.x)
+                        string += str(child_car.y)
 
                     if string in self.visited:
                         pass
@@ -173,28 +205,40 @@ class BFS():
                         self.visited.add(string)
                         self.queue.append(child)
 
-                    # set car.x back to value of node currently making children
                     car.x = car.x + 1
 
+            # check if direction of car is vertical
             if car.direction == "V":
 
-                # while space to the top to move to, move and create new node
+                # if space to the top of car availabe to move to, move 1 place to the top
                 if car.y < (self.dimensions - car.length) and self.board[car.y + car.length][car.x] == 0:
+
+                    #adjust y-coordinate in carlist
                     car.y = car.y + 1
 
-
-                    node.movelist.append(f"{car.name} + 1")
+                    if len(node.movelist) > 0 and node.movelist[-1][0] == car.name:
+                        previous_move = node.movelist.pop().split(" ")
+                        previous_move[2] = str(int(previous_move[2]) + 1)
+                        new_move = ' '.join(previous_move)
+                        node.movelist.append(new_move)
+                    else:
+                    	node.movelist.append(f"{car.name} + 1")
 
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
-                    node.movelist.pop()
+
+                    if node.movelist[-1][-1] != '1':
+                        changed_move = node.movelist.pop().split(" ")
+                        changed_move[2] = str(int(changed_move[2]) - 1)
+                        original_move = ' '.join(changed_move)
+                        node.movelist.append(original_move)
+                    else:
+                        node.movelist.pop()
 
                     string = ""
-                    for cara in child.carlist:
-                        string += str(cara.name)
-                        string += str(cara.x)
-                        string += str(cara.y)
-
-                    # childhash = hashlib.md5(string.encode()).hexdigest()
+                    for child_car in child.carlist:
+                        string += str(child_car.name)
+                        string += str(child_car.x)
+                        string += str(child_car.y)
 
                     if string in self.visited:
                         pass
@@ -202,28 +246,36 @@ class BFS():
                         self.visited.add(string)
                         self.queue.append(child)
 
-                    # set car.x back to value of node currently making children
+                    # set y-coordinate back to value of node currently making children
                     car.y = car.y - 1
 
-                # while space to bottom to move to, move and create new node
+                # if space to the bottom of car availabe to move to, move 1 place to the bottom
                 if car.y > 0 and self.board[car.y - 1][car.x] == 0:
-                    # print("move down")
                     car.y = car.y - 1
 
-
-                    node.movelist.append(f"{car.name} - 1")
+                    if len(node.movelist) > 0 and node.movelist[-1][0] == car.name:
+                        previous_move = node.movelist.pop().split(" ")
+                        previous_move[2] = str(int(previous_move[2]) + 1)
+                        new_move = ' '.join(previous_move)
+                        node.movelist.append(new_move)
+                    else:
+                    	node.movelist.append(f"{car.name} - 1")
 
                     child = copy.deepcopy(Node(node.carlist, node.movelist))
-                    node.movelist.pop()
 
+                    if node.movelist[-1][-1] != '1':
+                        changed_move = node.movelist.pop().split(" ")
+                        changed_move[2] = str(int(changed_move[2]) - 1)
+                        original_move = ' '.join(changed_move)
+                        node.movelist.append(original_move)
+                    else:
+                        node.movelist.pop()
 
                     string = ""
-                    for cara in child.carlist:
-                        string += str(cara.name)
-                        string += str(cara.x)
-                        string += str(cara.y)
-
-                    # childhash = hashlib.md5(string.encode()).hexdigest()
+                    for child_car in child.carlist:
+                        string += str(child_car.name)
+                        string += str(child_car.x)
+                        string += str(child_car.y)
 
                     if string in self.visited:
                         pass
@@ -231,26 +283,11 @@ class BFS():
                         self.visited.add(string)
                         self.queue.append(child)
 
-                    # set car.x back to value of node currently making children
                     car.y = car.y + 1
-
-
-    def view_node(self, node):
-        """ Prints the carlist of the node for testing purposes """
-
-        view = self.construct_board(node)
-        for i in range(self.dimensions -1, -1, -1):
-            for j in range(self.dimensions):
-                print(view[i][j] ,end = " ")
-            print()
-
-    def view_queue(self):
-        for node in self.queue:
-            self.view_node(node)
-            print("\n")
 
 if __name__ == '__main__':
 
+    # keep prompting for input file until correct file is given
     while True:
 
         # ask for input file
@@ -263,26 +300,40 @@ if __name__ == '__main__':
         else:
             break
 
-    # get board dimensions from file title, which is the 8th character
+    # get board dimensions from title of input file
     dimensions = int(re.search(r'\d+', input_name).group())
 
+    # read into file, which holds data for cars in game
     with open(input_file) as input:
         reader = csv.reader(input, delimiter=',')
         row_count = 0
         carlist = []
 
-        # construct carlist
+        # iterate over rows in file
         for row in reader:
+
+            # skip over header row
             if row_count != 0:
+
+                # construct Car objects to be used in games
                 x = int(row[2].strip(' "')) - 1
                 y = int(row[3].strip('"')) - 1
                 length = int(row[4].strip())
                 direction = row[1].strip()
                 car = Car(row[0], direction, x, y, length)
+
+                # add Car object to carlist of game
                 carlist.append(car)
             row_count += 1
 
+    # root_node contains empty movelist
     movelist = []
+
+    # construct root_node, which holds starting carlist
     root_node = Node(carlist, movelist)
+
+    # construct BFS object
     algorithm = BFS(root_node, dimensions)
+
+    # start the algorithm
     algorithm.check()
