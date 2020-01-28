@@ -1,21 +1,42 @@
-import csv
-import random
-from os import path
-import re
+"""
+Billy Griep
+Floris Kienhuis
+Jan Elders
+
+Minor Programmeren
+Heuristieken
+
+Vindt random oplossing voor Rush Hour
+"""
+
 import copy
-from random_algorithm import Car
+import csv
+import matplotlib.pyplot as plt
+from os import path
+import random
+import re
+
+class Car():
+    """ Makes car object """
+
+    def __init__(self, name, direction, x, y, length):
+        """ Initializes car """
+
+        # each car object contains a name, direction x- and y-coordinate and a length
+        self.name = name
+        self.direction = direction
+        self.x = x
+        self.y = y
+        self.length = length
 
 class Board():
-    """ Make board object """
+    """ Makes board object """
 
-    def __init__(self, dimensions, carlist, upperbound):
-        """ Initialize board """
+    def __init__(self, dimensions, carlist):
+        """ Initializes board """
 
         # each board contains dimensions to visualise the board in the correct format
         self.dimensions = dimensions
-
-        # each board contains an upperbound which will be adjusted during running to prevent unneccesary runtime
-        self.upperbound = upperbound
 
         # each board contains a movelist which is updated after every move
         self.movelist = []
@@ -137,10 +158,6 @@ class Board():
             if self.car_moved(car):
                 self.counter += 1
 
-            # if movecounter is bigger than upperbound, break
-            if self.counter > self.upperbound:
-                break
-
         # return movecounter
         return self.counter
 
@@ -200,10 +217,10 @@ def read_file(input_file):
     return carlist
 
 def game_iteration(iterations):
-    """ contains logic of 1 iteration """
 
-    # set upperbound to a very high number
-    upperbound = 1000000
+    # set shortest_move to a very high number, so it is overwritten in first iteration
+    shortest_move = 1000000
+    solutions_list = []
 
     # remember original carlist to construct board
     original_carlist = read_file(input_file)
@@ -212,34 +229,55 @@ def game_iteration(iterations):
     for iteration in range(iterations):
 
         # initialize board
-        board = Board(dimensions, original_carlist, upperbound)
+        board = Board(dimensions, original_carlist)
 
-        # execute move function to find solution, which breaks if movecounter exceeds upperbound provided
+        # execute move function to find solution
         move = board.move()
 
-        # if faster solution is found, adjust upperbound
-        if move < board.upperbound:
-            upperbound = move
-            fastest_solution = board.movelist
+        # add movecounter returned by move function to solution_list
+        solutions_list.append(move)
+
+        # remember movecounter if movecounter is shorter than previous shortest
+        if move < shortest_move:
+            shortest_move = move
+
+            # remember movelist
+            shortest_list = board.movelist
+
+    # sort list of movecounters
+    sort = sorted(solutions_list)
+
+    # fetch median and fastest
+    median = sort[int((iterations / 2) - 1)]
+    fastest = sort[0]
+    print("median:", median)
+    print("fastest:", fastest)
 
     # write all moves leading to fastest solution into csv file
     with open ('solution.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["car", "move"])
-        for i in range(len(fastest_solution)):
-            if "-" in fastest_solution[i]:
-                negative_value = "-"+str(fastest_solution[i][-1])
-                if fastest_solution[1] == " ":
-                    writer.writerow([fastest_solution[i][0], negative_value])
+        for i in range(len(shortest_list)):
+            if "-" in shortest_list[i]:
+                negative_value = "-"+str(shortest_list[i][-1])
+                if shortest_list[1] == " ":
+                    writer.writerow([shortest_list[i][0], negative_value])
                 else:
-                    writer.writerow([fastest_solution[i][0:2], negative_value])
+                    writer.writerow([shortest_list[i][0:2], negative_value])
             else:
-                if fastest_solution[1] == " ":
-                    writer.writerow([fastest_solution[i][0], fastest_solution[i][-1]])
+                if shortest_list[1] == " ":
+                    writer.writerow([shortest_list[i][0], shortest_list[i][-1]])
                 else:
-                    writer.writerow([fastest_solution[i][0:2], fastest_solution[i][-1]])
+                    writer.writerow([shortest_list[i][0:2], shortest_list[i][-1]])
 
-        # exit program wghen solution found
+        # print histogram
+        plt.hist(solutions_list, bins=50)
+        plt.title(input_name)
+        plt.xlabel("Amount of moves", size=15)
+        plt.ylabel("Frequency", size = 15)
+        plt.show()
+
+        # exit program
         print("Solved board, check solution.csv for solution!")
         exit()
 
@@ -249,9 +287,14 @@ if __name__ == '__main__':
     valid_file = False
     while valid_file == False:
 
-        # prompt for input file
+        # ask for input file
         input_name = input(f"Please enter the name of the input file: ")
-        input_file = f"Boards/Rushhour{input_name}.csv"
+        cd = os.path.abspath(os.curdir)
+        print(cd)
+        parent = os.chdir('..')
+        print(parent)
+        input_file = f"rushhour/Boards/Rushhour{input_name}.csv"
+        print(input_file)
 
         # check if file exists otherwise reprompt
         if path.exists(input_file) == False:
@@ -262,13 +305,15 @@ if __name__ == '__main__':
     # keep prompting until positive integer is provided
     valid_integer = False
     while valid_integer == False:
+        try:
+            iterations = int(input(f"How many iterations would you like to run?: "))
+        except:
+            print("Please provide a positive integer, try again")
+            continue
 
-        # prompt for
-        iterations = input(f"How many iterations would you like to run? :")
-
-        if type(iterations) == "int":
-            if iterations > 0:
-                valid_integer = True
+        # check if integer is positive
+        if iterations > 0:
+            valid_integer = True
         else:
             print("Please provide a positive integer, try again")
             continue
@@ -276,5 +321,5 @@ if __name__ == '__main__':
     # fetch dimensions from file title
     dimensions = int(re.search(r'\d+', input_name).group())
 
-    # start the random algorithm
+    # run program
     game = game_iteration(iterations)

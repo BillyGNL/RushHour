@@ -1,3 +1,14 @@
+"""
+Billy Griep
+Floris Kienhuis
+Jan Elders
+
+Minor Programmeren
+Heuristieken
+
+Vindt snelste oplossing voor Rush Hour met behulp van breadt-first search
+"""
+
 from random_algorithm import Board, Car
 import csv
 from os import path

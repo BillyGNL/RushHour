@@ -1,4 +1,4 @@
-#RushHour
+# RushHour
 
 ---
 
@@ -18,12 +18,16 @@ Dit programma is geschreven in Python 3.6.8. Verder staan in requirements.txt al
 
 ### Structuur
 
-komt nog
+In deze repository zijn twee mappen, een readme en een solutions.csv file te vinden. In de map Algorithms zijn de drie files te vinden waarin de algoritmes zijn geschreven. In de map Boards zijn zeven .csv files te vinden die de begintoestand van een RushHour weergeven. Bij het runnen van een de algoritmes wordt de uiteindelijke move_list geschreven naar de solutions.csv file.
+
+Bij een volgende uitvoer wordt deze solutions.csv file overschreven.
 
 ### Test
 
 Voor het testen van de verschillende algoritmen, voer het volgende uit:
-`python random_algoritm.py  python random_upperbound.py  python BFS.py`    
+`python random_algoritm.py`
+`python random_upperbound.py`
+`python BFS.py`    
 Dit runt respectivelijk de random algoritmes en het algoritme aan de hand van Breadth First Search.
 
 
@@ -33,7 +37,7 @@ Bovenstaande roept bord 1 aan, wat een grootte heeft van 6 bij 6, dit loopt zo d
 `12x12_7`
 
 
-Als laatste is ook nog het aantal gewenste interaties nodig als input. Hiervoor dient simpelweg het aantal als getal te worden ingevoerd.
+Als laatste is bij de twee random algoritmes ook nog het aantal gewenste interaties nodig als input. Hiervoor dient simpelweg het aantal als getal te worden ingevoerd.
 
 ## Auteurs
 
