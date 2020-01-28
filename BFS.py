@@ -1,6 +1,5 @@
 from random_algorithm import Board, Car
 import csv
-import os
 from os import path
 import re
 import copy
@@ -69,8 +68,8 @@ class BFS():
                         else:
                             writer.writerow([node.movelist[i][0], node.movelist[i][4]])
 
-                    # open solution file
-                    os.startfile('solution.csv')
+                # exit program after writing into csv file
+                print("Solved board, check solution.csv for solution!")
                 exit()
 
             # if not winning node, generate all children for node which are automatically added to queue

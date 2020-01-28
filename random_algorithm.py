@@ -1,7 +1,8 @@
-
 import csv
+import matplotlib.pyplot as plt
 import random
 from os import path
+import os
 import re
 import copy
 
@@ -47,11 +48,16 @@ class Board():
     def move(self):
         """ Allows cars to move over the board, returns a counter of the number of moves made """
 
+        previous_car = None
         # end loop if game is won
         while self.won() != True:
 
             # pick a random car to move
             car = random.choice(self.carlist)
+
+            if previous_car:
+                if previous_car.name == car.name:
+                    continue
 
             # remember the x and y coordinate before moving the car
             self.old_car_x = car.x
@@ -66,7 +72,15 @@ class Board():
                     self.board[car.y][car.x + car.length] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.x = car.x + 1
-                    self.move_list.append(f"{car.name} + 1")
+                    previous_car = car
+                    if len(self.move_list) > 0 and (self.move_list[-1][0:2] == f"{car.name} " or self.move_list[-1][0:2] == car.name):
+                        previous_move = self.move_list.pop().split(" ")
+                        previous_move[-1] = str(int(previous_move[-1]) + 1)
+                        new_move = ' '.join(previous_move)
+                        self.move_list.append(new_move)
+                    else:
+                        self.move_list.append(f"{car.name} + 1")
+
                 moved = self.car_moved(car)
 
                 # if horizontal car can't move right, check if space to the left to move to
@@ -76,7 +90,15 @@ class Board():
                     self.board[car.y][car.x - 1] = self.board[car.y][car.x]
                     self.board[car.y][car.x + (car.length - 1)] = 0
                     car.x = car.x - 1
-                    self.move_list.append(f"{car.name} - 1")
+                    previous_car = car
+                    if len(self.move_list) > 0 and (self.move_list[-1][0:2] == f"{car.name} " or self.move_list[-1][0:2] == car.name):
+                        previous_move = self.move_list.pop().split(" ")
+                        previous_move[-1] = str(int(previous_move[-1]) + 1)
+                        new_move = ' '.join(previous_move)
+                        self.move_list.append(new_move)
+                    else:
+                        self.move_list.append(f"{car.name} - 1")
+
 
             # check if there is space to the top of vertical cars to move to
             if car.direction == "V":
@@ -87,7 +109,14 @@ class Board():
                     self.board[car.y + car.length][car.x] = self.board[car.y][car.x]
                     self.board[car.y][car.x] = 0
                     car.y = car.y + 1
-                    self.move_list.append(f"{car.name} + 1")
+                    previous_car = car
+                    if len(self.move_list) > 0 and (self.move_list[-1][0:2] == f"{car.name} " or self.move_list[-1][0:2] == car.name):
+                        previous_move = self.move_list.pop().split(" ")
+                        previous_move[-1] = str(int(previous_move[-1]) + 1)
+                        new_move = ' '.join(previous_move)
+                        self.move_list.append(new_move)
+                    else:
+                        self.move_list.append(f"{car.name} + 1")
 
                 moved = self.car_moved(car)
 
@@ -98,7 +127,14 @@ class Board():
                     self.board[car.y - 1][car.x] = self.board[car.y][car.x]
                     self.board[car.y + (car.length - 1)][car.x] = 0
                     car.y = car.y - 1
-                    self.move_list.append(f"{car.name} - 1")
+                    previous_car = car
+                    if len(self.move_list) > 0 and (self.move_list[-1][0:2] == f"{car.name} " or self.move_list[-1][0:2] == car.name):
+                        previous_move = self.move_list.pop().split(" ")
+                        previous_move[-1] = str(int(previous_move[-1]) + 1)
+                        new_move = ' '.join(previous_move)
+                        self.move_list.append(new_move)
+                    else:
+                        self.move_list.append(f"{car.name} - 1")
 
             # increment counter by 1 if the car has moved
             if self.car_moved(car):
@@ -149,19 +185,53 @@ def read_file(input_file):
 
 def game_iteration(iterations):
 
-    # set upperbound to a very high number
-    upperbound = 1000000
+
+    shortest_move = 1000000
+    solutions_list = []
+
     original_carlist = read_file(input_file)
     for iteration in range(iterations):
 
-        board = Board(dimensions, original_carlist, upperbound)
+        board = Board(dimensions, original_carlist)
         move = board.move()
+        solutions_list.append(move)
 
-        if move < board.upperbound:
-            upperbound = move
+        if move < shortest_move:
+            shortest_move = move
             shortest_list = board.move_list
-    print(f"Fastest: {upperbound}")
+
+    sort = sorted(solutions_list)
+    median = sort[int((iterations / 2) - 1)]
+    fastest = sort[0]
+    print("median:", median)
+    print("fastest:", fastest)
     print(shortest_list)
+    print(len(shortest_list))
+
+    with open ('solution.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["car", "move"])
+        for i in range(len(shortest_list)):
+            if "-" in shortest_list[i]:
+                negative_value = "-"+str(shortest_list[i][-1])
+                if shortest_list[1] == " ":
+                    writer.writerow([shortest_list[i][0], negative_value])
+                else:
+                    writer.writerow([shortest_list[i][0:2], negative_value])
+            else:
+                if shortest_list[1] == " ":
+                    writer.writerow([shortest_list[i][0], shortest_list[i][-1]])
+                else:
+                    writer.writerow([shortest_list[i][0:2], shortest_list[i][-1]])
+
+        plt.hist(solutions_list, bins=50)
+        plt.title("6x6_2")
+        plt.xlabel("Amount of moves", size=15)
+        plt.ylabel("Frequency", size = 15)
+        plt.show()
+
+        # open solution file
+        os.startfile('solution.csv')
 
 if __name__ == '__main__':
 
