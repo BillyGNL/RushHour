@@ -24,7 +24,7 @@ Bij een volgende uitvoer wordt deze solutions.csv file overschreven.
 
 ### Test
 
-Voor het testen van de verschillende algoritmen, voer het volgende uit:
+Voor het testen van de verschillende algoritmen, voer het volgende uit:  
 `python random_algoritm.py`  
 `python random_upperbound.py`  
 `python BFS.py`      
