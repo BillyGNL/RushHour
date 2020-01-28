@@ -25,16 +25,16 @@ Bij een volgende uitvoer wordt deze solutions.csv file overschreven.
 ### Test
 
 Voor het testen van de verschillende algoritmen, voer het volgende uit:
-`python random_algoritm.py`
-`python random_upperbound.py`
-`python BFS.py`    
-Dit runt respectivelijk de random algoritmes en het algoritme aan de hand van Breadth First Search.
+`python random_algoritm.py`  
+`python random_upperbound.py`  
+`python BFS.py`      
+Dit runt respectievelijk de random algoritmes en het algoritme aan de hand van Breadth First Search.
 
 
 Hierna wordt gevraagd op welk bord dit uitgevoerd dient te worden, dit zijn allen .csv bestanden, te vinden in de map boards. Er zijn zeven borden beschikbaar, drie borden hebben een grootte van 6 bij 6, drie van 9 bij 9 en een van 12 bij 12. Deze kunnen worden aangeroepen door als input file het volgende in te voeren:
-`6x6_1`
+`6x6_1`  
 Bovenstaande roept bord 1 aan, wat een grootte heeft van 6 bij 6, dit loopt zo door tot het 12 bij 12 bord:
-`12x12_7`
+`12x12_7`  
 
 
 Als laatste is bij de twee random algoritmes ook nog het aantal gewenste interaties nodig als input. Hiervoor dient simpelweg het aantal als getal te worden ingevoerd.
