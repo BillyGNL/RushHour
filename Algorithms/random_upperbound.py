@@ -231,9 +231,12 @@ if __name__ == '__main__':
     valid_file = False
     while valid_file == False:
 
+        # access parent directory
+        directory = path.dirname(path.dirname(path.abspath(__file__)))
+
         # prompt for input file
         input_name = input(f"Please enter the name of the input file: ")
-        input_file = f"Boards/Rushhour{input_name}.csv"
+        input_file = f"{directory}/Boards/Rushhour{input_name}.csv"
 
         # check if file exists otherwise reprompt
         if path.exists(input_file) == False:

@@ -287,14 +287,13 @@ if __name__ == '__main__':
     valid_file = False
     while valid_file == False:
 
+        # access parent directory
+        directory = path.dirname(path.dirname(path.abspath(__file__)))
+
         # ask for input file
         input_name = input(f"Please enter the name of the input file: ")
-        cd = os.path.abspath(os.curdir)
-        print(cd)
-        parent = os.chdir('..')
-        print(parent)
-        input_file = f"rushhour/Boards/Rushhour{input_name}.csv"
-        print(input_file)
+        input_file = f"{directory}/Boards/Rushhour{input_name}.csv"
+
 
         # check if file exists otherwise reprompt
         if path.exists(input_file) == False:
